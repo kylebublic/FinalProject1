@@ -8,49 +8,38 @@ import SwiftUI
 
 struct ContentView: View {
     @State var wikiData: WikiData?
+    @State private var choices: [WikiData] = []
+    @State private var correctAnswer: WikiData?
+    @State private var selectedAnswer: String?
+    @State private var showGame = false
+    @State private var themeColor: Color = .orange
+    @State private var streak = 0
+
     
     var body: some View {
-        List {
-            Button("Generate Image") {
-                // Add a Task to call getWords()
-                Task {
-                    do {
-                        wikiData = try await WikiService.fetchRandomPage()}
-                    catch {print(error.localizedDescription)}
-                }
-            }
-            
-            if let page = wikiData {
-                
-                Section("Image Information") {
-                    
-                    Text(page.title)
-                    
-                    if let urlString = page.thumbnailURL,
-                       let url = URL(string: urlString){
-                        AsyncImage(url:url){ image in image
-                                .resizable()
-                                .scaledToFit()
-                            
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(maxHeight: 250)
-                    }
-                }
-                
-            }
-            else{
-                Text("Error Getting Image")
-            }
+        if showGame {
+            gameView
+        } else {
+            OpenPage(showGame: $showGame, themeColor: $themeColor)
         }
     }
+    var gameView: some View {
+            GamePage(
+                wikiData: $wikiData,
+                choices: $choices,
+                correctAnswer: $correctAnswer,
+                selectedAnswer: $selectedAnswer,
+                streak: $streak,
+                themeColor: $themeColor,
+                showGame: $showGame
+            )
+        }
+
+  
+    
 }
     
+    #Preview {
+        ContentView()
+    }
 
-
-
-
-#Preview {
-    ContentView()
-}
